@@ -3,18 +3,12 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 
 	"github.com/urfave/cli/v3"
-)
-
-const (
-	apiEndpoint = "https://api.openai.com/v1/chat/completions"
 )
 
 type PromptType int
@@ -24,7 +18,7 @@ const (
 	PromptCodeReview
 )
 
-func runDiff() (error, string, string) {
+func runDiff() (string, string, error) {
 	// Define the Git command
 	cmd := exec.Command("git", "diff", "HEAD")
 
@@ -37,11 +31,11 @@ func runDiff() (error, string, string) {
 	// Run the command
 	err := cmd.Run()
 	if err != nil {
-		return err, "", ""
+		return "", "", err
 	}
 
 	// Convert the output to a string
-	return nil, stdout.String(), stderr.String()
+	return stdout.String(), stderr.String(), nil
 }
 
 func getPrompt(promptType PromptType) string {
@@ -60,6 +54,12 @@ func getPrompt(promptType PromptType) string {
 
 // help - urfave/cli
 func main() {
+	config, err := InitConfig()
+
+	if err != nil {
+		log.Fatal("Configuration problem", err)
+		return
+	}
 
 	var prompt string
 
@@ -87,7 +87,7 @@ func main() {
 	}
 
 	// Run the git diff command
-	err, stdout, stderr := runDiff()
+	stdout, stderr, err := runDiff()
 	if err != nil {
 		fmt.Println("Error:", err)
 		fmt.Println("Stderr:", stderr)
@@ -100,52 +100,11 @@ func main() {
 	// Print the output
 	fmt.Println(result)
 
-	apiKey, apiOk := os.LookupEnv("OPENAI_API_KEY")
-	if !apiOk {
-		log.Fatal("Environment variable OPENAI_API_KEY must be set")
-		return
-	}
-
-	// Create the request body
-	body, err := json.Marshal(map[string]interface{}{
-		"model":      "gpt-4o",
-		"messages":   []interface{}{map[string]interface{}{"role": "system", "content": result}},
-		"max_tokens": 3500,
-	})
+	content, err := ExecPrompt(result, config)
 	if err != nil {
-		log.Fatalf("Error while marshalling request body: %v", err)
+		log.Fatal("Prompt execution problem", err)
 		return
 	}
 
-	// Create the HTTP request
-	req, err := http.NewRequest("POST", apiEndpoint, bytes.NewBuffer(body))
-	if err != nil {
-		log.Fatalf("Error creating request: %v", err)
-		return
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
-
-	// Send the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		log.Fatalf("Error while sending request: %v", err)
-		return
-	}
-	defer res.Body.Close()
-
-	var data map[string]interface{}
-
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		fmt.Println("Error while decoding JSON response:", err)
-		return
-	}
-
-	// Extract the content from the JSON response
-	content := data
-	fmt.Println(content)
+	fmt.Println(content.Choices[0].Message.Content)
 }
-
