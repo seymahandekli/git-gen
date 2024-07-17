@@ -1,14 +1,9 @@
-package main
+package gitgen
 
 import (
 	"bytes"
-	"context"
 	"fmt"
-	"log"
-	"os"
 	"os/exec"
-
-	"github.com/urfave/cli/v3"
 )
 
 type PromptType int
@@ -52,59 +47,28 @@ func getPrompt(promptType PromptType) string {
 	return prompt
 }
 
-// help - urfave/cli
-func main() {
+func Do(promptType PromptType, maxTokens int64) (string, error) {
 	config, err := InitConfig()
+	config.PromptMaxTokens = maxTokens
 
 	if err != nil {
-		log.Fatal("Configuration problem", err)
-		return
+		return "", err
 	}
 
-	var prompt string
-
-	cmd := &cli.Command{
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:        "prompt",
-				Value:       "commit",
-				Destination: &prompt,
-			},
-		},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			if prompt == "review" {
-				prompt = getPrompt(PromptCodeReview)
-			} else {
-				prompt = getPrompt(PromptCommitMessage)
-			}
-			return nil
-		},
-	}
-
-	if err := cmd.Run(context.Background(), os.Args); err != nil {
-		log.Fatal(err)
-		return
-	}
+	prompt := getPrompt(promptType)
 
 	// Run the git diff command
-	stdout, stderr, err := runDiff()
+	stdout, _, err := runDiff()
 	if err != nil {
-		fmt.Println("Error:", err)
-		fmt.Println("Stderr:", stderr)
-
-		return
+		return "", err
 	}
 
 	result := fmt.Sprintf("~~~diff\n%s~~~\n\n%s", stdout, prompt)
 
-	// Print the output
-	fmt.Println(result)
-
 	content, err := ExecPrompt(result, config)
 	if err != nil {
-		log.Fatal("Prompt execution problem", err)
-		return
+		return "", err
 	}
 
-	fmt.Println(content.Choices[0].Message.Content)
+	return content.Choices[0].Message.Content, nil
 }

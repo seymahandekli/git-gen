@@ -1,4 +1,4 @@
-package main
+package gitgen
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 type Config struct {
 	OpenApiKey                  string
 	PromptModel                 string
-	PromptMaxTokens             int
+	PromptMaxTokens             int64
 	PromptRequestTimeoutSeconds int64
 }
 

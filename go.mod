@@ -1,4 +1,4 @@
-module mycli
+module github.com/seymahandekli/gitgen
 
 go 1.22.3
 

@@ -1,4 +1,4 @@
-package main
+package gitgen
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ type PromptRequestMessage struct {
 type PromptRequest struct {
 	Model     string                 `json:"model"`
 	Messages  []PromptRequestMessage `json:"messages"`
-	MaxTokens int                    `json:"max_tokens"`
+	MaxTokens int64                  `json:"max_tokens"`
 }
 
 type PromptResponse struct {
