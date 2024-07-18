@@ -1,4 +1,4 @@
-module github.com/seymahandekli/gitgen
+module github.com/seymahandekli/git-gen
 
 go 1.22.3
 

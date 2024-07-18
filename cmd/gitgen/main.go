@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/seymahandekli/gitgen/pkg/gitgen"
+	"github.com/seymahandekli/git-gen/pkg/gitgen"
 	"github.com/urfave/cli/v3"
 )
 
@@ -32,12 +32,13 @@ func main() {
 
 			if promptTypeStr == "review" {
 				promptType = gitgen.PromptCodeReview
-			} else if promptTypeStr == "commit" {
+			}
+			if promptTypeStr == "commit" {
 				promptType = gitgen.PromptCommitMessage
-			} else {
+			}
+			if !(promptTypeStr == "commit" || promptTypeStr == "review") {
 				return fmt.Errorf("invalid prompt type - %s", promptTypeStr)
 			}
-
 			result, err := gitgen.Do(promptType, maxTokens)
 
 			if err != nil {
