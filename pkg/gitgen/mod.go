@@ -47,14 +47,7 @@ func getPrompt(promptType PromptType) string {
 	return prompt
 }
 
-func Do(promptType PromptType, maxTokens int64) (string, error) {
-	config, err := InitConfig()
-	config.PromptMaxTokens = maxTokens
-
-	if err != nil {
-		return "", err
-	}
-
+func Do(promptType PromptType, config Config) (string, error) {
 	prompt := getPrompt(promptType)
 
 	// Run the git diff command
