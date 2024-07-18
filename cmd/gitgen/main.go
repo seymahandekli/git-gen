@@ -10,8 +10,16 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+var (
+	PromptMap = map[string]gitgen.PromptType{
+		"commit": gitgen.PromptCommitMessage,
+		"review": gitgen.PromptCodeReview,
+	}
+)
+
 func main() {
 	var promptTypeStr string
+
 	var maxTokens int64
 
 	cmd := &cli.Command{
@@ -28,18 +36,11 @@ func main() {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			var promptType gitgen.PromptType
-
-			if promptTypeStr == "review" {
-				promptType = gitgen.PromptCodeReview
-			}
-			if promptTypeStr == "commit" {
-				promptType = gitgen.PromptCommitMessage
-			}
-			if !(promptTypeStr == "commit" || promptTypeStr == "review") {
+			value, ok := PromptMap[promptTypeStr]
+			if !ok {
 				return fmt.Errorf("invalid prompt type - %s", promptTypeStr)
 			}
-			result, err := gitgen.Do(promptType, maxTokens)
+			result, err := gitgen.Do(value, maxTokens)
 
 			if err != nil {
 				return err
