@@ -9,9 +9,9 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-
 func main() {
 	var openAiKey string
+	var promptModel string
 	var maxTokens int64
 
 	cmd := &cli.Command{
@@ -36,11 +36,18 @@ func main() {
 						Value:       3500,
 						Destination: &maxTokens,
 					},
+					&cli.StringFlag{
+						Name:        "model",
+						Usage:       "OpenAI Model",
+						Value:       "gpt-4o",
+						Destination: &promptModel,
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.DefaultConfig()
 					config.OpenApiKey = openAiKey
 					config.PromptMaxTokens = maxTokens
+					config.PromptModel = promptModel
 
 					result, err := gitgen.Do(gitgen.PromptCommitMessage, config)
 
@@ -69,11 +76,18 @@ func main() {
 						Value:       3500,
 						Destination: &maxTokens,
 					},
+					&cli.StringFlag{
+						Name:        "model",
+						Usage:       "OpenAI Model",
+						Value:       "gpt-4o",
+						Destination: &promptModel,
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.DefaultConfig()
 					config.OpenApiKey = openAiKey
 					config.PromptMaxTokens = maxTokens
+					config.PromptModel = promptModel
 
 					result, err := gitgen.Do(gitgen.PromptCodeReview, config)
 
