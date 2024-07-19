@@ -29,7 +29,8 @@ Once Go is installed, you can clone the `gitgen` repository and build the tool:
 ```sh
 git clone https://github.com/seymahandekli/git-gen
 cd git-gen
-go build ./cmd/gitgen
+go build ./cmd/git-gen
+go run ./cmd/git-gen register
 ```
 
 ## Usage
@@ -38,16 +39,16 @@ After building `gitgen`, you can use it from the command line. Below are some ex
 
 ```sh
 # Generate commit message
-./gitgen
+git gen commit --apikey "YOUR_OPENAI_KEY"
 
 # Generate code review
-./gitgen --prompt review
+git gen review --apikey "YOUR_OPENAI_KEY"
 ```
 
 For more detailed usage instructions, refer to the `--help` option:
 
 ```sh
-./gitgen --help
+git gen --help
 ```
 
 ## Contributing
