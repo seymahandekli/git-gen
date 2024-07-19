@@ -30,7 +30,7 @@ Once Go is installed, you can clone the `gitgen` repository and build the tool:
 git clone https://github.com/seymahandekli/git-gen
 cd git-gen
 go build ./cmd/git-gen
-go run ./cmd/git-gen register
+./git-gen register
 ```
 
 ## Usage
