@@ -99,6 +99,27 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:  "register",
+				Usage: "Registers itself to the running system",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					// if strings.Contains(existingPaths, fmt.Sprintf(":%s", workingDirectory)) {
+					// 	fmt.Printf("%s path is already registered.\n", workingDirectory)
+
+					// 	return nil
+					// }
+
+					// fmt.Printf("setting %s to PATH\n", workingDirectory)
+					// newPaths := fmt.Sprintf("%s:%s", existingPaths, workingDirectory)
+
+					// os.Setenv("PATH", newPaths)
+					// fmt.Println("done.")
+
+					err := gitgen.RegisterToPath()
+
+					return err
+				},
+			},
 		},
 	}
 
