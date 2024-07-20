@@ -50,6 +50,10 @@ func ExecPrompt(prompt string, config Config) (*PromptResponse, error) {
 		Messages: []PromptRequestMessage{
 			{
 				Role:    "system",
+				Content: "Act as a software developer working on a project. You have just run a `git diff` command and see the following changes. According to prompt write a commit message or code review based on these changes. ",
+			},
+			{
+				Role:    "user",
 				Content: prompt,
 			},
 		},
