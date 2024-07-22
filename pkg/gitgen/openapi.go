@@ -43,20 +43,24 @@ type PromptResponse struct {
 	} `json:"choices"`
 }
 
-func ExecPrompt(prompt string, config Config) (*PromptResponse, error) {
+func ExecPrompt(systemPrompt string, userPrompt string, config Config) (*PromptResponse, error) {
 	// Create the request body
 	request := PromptRequest{
 		Model: config.PromptModel,
 		Messages: []PromptRequestMessage{
 			{
 				Role:    "system",
-				Content: prompt,
+				Content: systemPrompt,
+			},
+			{
+				Role:    "user",
+				Content: userPrompt,
 			},
 		},
 		MaxTokens: config.PromptMaxTokens,
 	}
 
-	body, err := json.Marshal(request)
+	body, err := json.MarshalIndent(request, "", "  ") // Use json.MarshalIndent for pretty printing
 	if err != nil {
 		return nil, err
 	}
