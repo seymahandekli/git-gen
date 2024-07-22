@@ -43,24 +43,24 @@ type PromptResponse struct {
 	} `json:"choices"`
 }
 
-func ExecPrompt(prompt string, config Config) (*PromptResponse, error) {
+func ExecPrompt(systemPrompt string, userPrompt string, config Config) (*PromptResponse, error) {
 	// Create the request body
 	request := PromptRequest{
 		Model: config.PromptModel,
 		Messages: []PromptRequestMessage{
 			{
 				Role:    "system",
-				Content: "Act as a software developer working on a project. You have just run a `git diff` command and see the following changes. According to prompt write a commit message or code review based on these changes. ",
+				Content: systemPrompt,
 			},
 			{
 				Role:    "user",
-				Content: prompt,
+				Content: userPrompt,
 			},
 		},
 		MaxTokens: config.PromptMaxTokens,
 	}
 
-	body, err := json.Marshal(request)
+	body, err := json.MarshalIndent(request, "", "  ") // Use json.MarshalIndent for pretty printing
 	if err != nil {
 		return nil, err
 	}

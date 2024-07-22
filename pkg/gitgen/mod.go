@@ -48,20 +48,24 @@ func getPrompt(promptType PromptType) string {
 }
 
 func Do(promptType PromptType, config Config) (string, error) {
-	prompt := getPrompt(promptType)
+	systemPrompt := getPrompt(promptType)
 
 	// Run the git diff command
-	stdout, _, err := runDiff()
+	userPrompt, _, err := runDiff()
 	if err != nil {
 		return "", err
 	}
 
-	result := fmt.Sprintf("~~~diff\n%s~~~\n\n%s", stdout, prompt)
+	fmt.Println("System Prompt:")
+	fmt.Println(systemPrompt)
+	fmt.Println("User Prompt:")
+	fmt.Println(userPrompt)
 
-	content, err := ExecPrompt(result, config)
+	content, err := ExecPrompt(systemPrompt, userPrompt, config)
 	if err != nil {
 		return "", err
 	}
 
+	fmt.Println("OpenAI Response:")
 	return content.Choices[0].Message.Content, nil
 }
