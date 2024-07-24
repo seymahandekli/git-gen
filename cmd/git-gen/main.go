@@ -11,10 +11,11 @@ import (
 
 func main() {
 	var openAiKey string
-	var promptModel string
-	var maxTokens int64
 	var sourceRef string
 	var destinationRef string
+	var promptModel string
+	var maxTokens int64
+	
 
 	cmd := &cli.Command{
 		Name:  "git-gen",

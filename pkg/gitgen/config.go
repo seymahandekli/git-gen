@@ -2,21 +2,22 @@ package gitgen
 
 type Config struct {
 	OpenApiKey                  string
+	SourceRef                   string
+	DestinationRef              string
 	PromptModel                 string
 	PromptMaxTokens             int64
 	PromptRequestTimeoutSeconds int64
-	SourceRef                   string
-	DestinationRef              string
 }
 
 func DefaultConfig() Config {
 	config := Config{
 		OpenApiKey:                  "",
+		SourceRef:                   "HEAD",
+		DestinationRef:              "",
 		PromptModel:                 "gpt-4o",
 		PromptMaxTokens:             3500,
 		PromptRequestTimeoutSeconds: 3600,
-		SourceRef:                   "HEAD",
-		DestinationRef:              "",
+		
 	}
 
 	return config
