@@ -17,6 +17,9 @@ func runDiff(config Config) (string, string, error) {
 	// Define the Git command
 
 	cmd := exec.Command("git", "diff", config.SourceRef, config.DestinationRef)
+	if config.DestinationRef == "" {
+		cmd = exec.Command("git", "diff", config.SourceRef)	
+	}
 
 	// Create buffers to capture the output and error
 	var stdout bytes.Buffer
