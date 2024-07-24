@@ -5,6 +5,8 @@ type Config struct {
 	PromptModel                 string
 	PromptMaxTokens             int64
 	PromptRequestTimeoutSeconds int64
+	SourceRef                   string
+	DestinationRef              string
 }
 
 func DefaultConfig() Config {
@@ -13,6 +15,8 @@ func DefaultConfig() Config {
 		PromptModel:                 "gpt-4o",
 		PromptMaxTokens:             3500,
 		PromptRequestTimeoutSeconds: 3600,
+		SourceRef:                   "HEAD~",
+		DestinationRef:              "",
 	}
 
 	return config

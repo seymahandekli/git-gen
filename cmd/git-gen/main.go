@@ -13,6 +13,8 @@ func main() {
 	var openAiKey string
 	var promptModel string
 	var maxTokens int64
+	var sourceRef string
+	var destinationRef string
 
 	cmd := &cli.Command{
 		Name:  "git-gen",
@@ -29,6 +31,18 @@ func main() {
 						Sources:     cli.EnvVars("OPENAI_API_KEY"),
 						Destination: &openAiKey,
 						Required:    true,
+					},
+					&cli.StringFlag{
+						Name:        "source",
+						Usage:       "Source Ref",
+						Value:       "HEAD~",
+						Destination: &sourceRef,
+					},
+					&cli.StringFlag{
+						Name:        "dest",
+						Usage:       "Destination Ref",
+						Value:       "",
+						Destination: &destinationRef,
 					},
 					&cli.IntFlag{
 						Name:        "maxtokens",
@@ -48,6 +62,8 @@ func main() {
 					config.OpenApiKey = openAiKey
 					config.PromptMaxTokens = maxTokens
 					config.PromptModel = promptModel
+					config.SourceRef = sourceRef
+					config.DestinationRef = destinationRef
 
 					result, err := gitgen.Do(gitgen.PromptCommitMessage, config)
 
@@ -70,6 +86,18 @@ func main() {
 						Destination: &openAiKey,
 						Required:    true,
 					},
+					&cli.StringFlag{
+						Name:        "source",
+						Usage:       "Source Ref",
+						Value:       "HEAD~",
+						Destination: &sourceRef,
+					},
+					&cli.StringFlag{
+						Name:        "dest",
+						Usage:       "Destination Ref",
+						Value:       "",
+						Destination: &destinationRef,
+					},
 					&cli.IntFlag{
 						Name:        "maxtokens",
 						Usage:       "Maximum tokens to generate",
@@ -88,6 +116,8 @@ func main() {
 					config.OpenApiKey = openAiKey
 					config.PromptMaxTokens = maxTokens
 					config.PromptModel = promptModel
+					config.SourceRef = sourceRef
+					config.DestinationRef = destinationRef
 
 					result, err := gitgen.Do(gitgen.PromptCodeReview, config)
 

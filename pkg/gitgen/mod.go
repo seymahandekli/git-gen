@@ -13,15 +13,17 @@ const (
 	PromptCodeReview
 )
 
-func runDiff() (string, string, error) {
+func runDiff(config Config) (string, string, error) {
 	// Define the Git command
-	cmd := exec.Command("git", "diff", "HEAD")
+
+	cmd := exec.Command("git", "diff", config.SourceRef, config.DestinationRef)
 
 	// Create buffers to capture the output and error
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+
 
 	// Run the command
 	err := cmd.Run()
@@ -51,7 +53,7 @@ func Do(promptType PromptType, config Config) (string, error) {
 	systemPrompt := getPrompt(promptType)
 
 	// Run the git diff command
-	userPrompt, _, err := runDiff()
+	userPrompt, _, err := runDiff(config)
 	if err != nil {
 		return "", err
 	}
