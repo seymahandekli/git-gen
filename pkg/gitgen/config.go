@@ -15,7 +15,7 @@ func DefaultConfig() Config {
 		PromptModel:                 "gpt-4o",
 		PromptMaxTokens:             3500,
 		PromptRequestTimeoutSeconds: 3600,
-		SourceRef:                   "HEAD~",
+		SourceRef:                   "HEAD",
 		DestinationRef:              "",
 	}
 

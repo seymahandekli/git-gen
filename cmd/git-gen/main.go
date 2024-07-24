@@ -35,7 +35,7 @@ func main() {
 					&cli.StringFlag{
 						Name:        "source",
 						Usage:       "Source Ref",
-						Value:       "HEAD~",
+						Value:       "HEAD",
 						Destination: &sourceRef,
 					},
 					&cli.StringFlag{
@@ -60,11 +60,11 @@ func main() {
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.DefaultConfig()
 					config.OpenApiKey = openAiKey
-					config.PromptMaxTokens = maxTokens
-					config.PromptModel = promptModel
 					config.SourceRef = sourceRef
 					config.DestinationRef = destinationRef
-
+					config.PromptMaxTokens = maxTokens
+					config.PromptModel = promptModel
+					
 					result, err := gitgen.Do(gitgen.PromptCommitMessage, config)
 
 					if err != nil {
@@ -89,7 +89,7 @@ func main() {
 					&cli.StringFlag{
 						Name:        "source",
 						Usage:       "Source Ref",
-						Value:       "HEAD~",
+						Value:       "HEAD",
 						Destination: &sourceRef,
 					},
 					&cli.StringFlag{
@@ -114,10 +114,11 @@ func main() {
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.DefaultConfig()
 					config.OpenApiKey = openAiKey
-					config.PromptMaxTokens = maxTokens
-					config.PromptModel = promptModel
 					config.SourceRef = sourceRef
 					config.DestinationRef = destinationRef
+					config.PromptMaxTokens = maxTokens
+					config.PromptModel = promptModel
+					
 
 					result, err := gitgen.Do(gitgen.PromptCodeReview, config)
 
@@ -133,18 +134,6 @@ func main() {
 				Name:  "register",
 				Usage: "Registers itself to the running system",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					// if strings.Contains(existingPaths, fmt.Sprintf(":%s", workingDirectory)) {
-					// 	fmt.Printf("%s path is already registered.\n", workingDirectory)
-
-					// 	return nil
-					// }
-
-					// fmt.Printf("setting %s to PATH\n", workingDirectory)
-					// newPaths := fmt.Sprintf("%s:%s", existingPaths, workingDirectory)
-
-					// os.Setenv("PATH", newPaths)
-					// fmt.Println("done.")
-
 					err := gitgen.RegisterToPath()
 
 					return err
