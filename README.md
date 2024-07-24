@@ -38,7 +38,10 @@ go build ./cmd/git-gen
 After building `gitgen`, you can use it from the command line. Below are some example commands to help you get started:
 
 ```sh
-# Generate commit message
+# Generate commit message based on your git diff command choices
+git gen commit --source "commitID" --dest "commitID" --apikey "YOUR_OPENAI_KEY"
+
+# default `git diff HEAD´ command
 git gen commit --apikey "YOUR_OPENAI_KEY"
 
 # Generate code review
