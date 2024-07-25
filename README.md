@@ -34,6 +34,12 @@ go build ./cmd/git-gen
 ./git-gen register
 ```
 
+You can install the package should put the /usr/local/go/bin directory in your PATH environment variable.
+
+```sh
+go install github.com/seymahandekli/git-gen/cmd/git-gen@latest
+```
+
 ## Usage
 
 After building `git-gen`, you can use it from the command line. Below are some example commands to help you get started:
