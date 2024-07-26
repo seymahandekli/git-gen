@@ -48,13 +48,13 @@ After building `git-gen`, you can use it from the command line. Below are some e
 
 ```sh
 # Generate commit message based on your git diff command choices
-git gen commit --source "commitID" --dest "commitID" --apikey "YOUR_OPENAI_KEY"
+git-gen commit --source "commitID" --dest "commitID" --apikey "YOUR_OPENAI_KEY"
 
 # default `git diff HEAD´ command
-git gen commit --apikey "YOUR_OPENAI_KEY"
+git-gen commit --apikey "YOUR_OPENAI_KEY"
 
 # Generate code review
-git gen review --apikey "YOUR_OPENAI_KEY"
+git-gen review --apikey "YOUR_OPENAI_KEY"
 ```
 
 ### Alternative 2:
@@ -65,27 +65,26 @@ You don't have to specify OPENAI API KEY explicitly, you may store it to `OPENAI
 export OPENAI_API_KEY="YOUR_OPENAI_KEY"
 
 # Generate commit message based on your git diff command choices
-git gen commit --source "commitID" --dest "commitID"
+git-gen commit --source "commitID" --dest "commitID"
 
 # default `git diff HEAD´ command
-git gen commit
+git-gen commit
 
 # Generate code review
-git gen review
+git-gen review
 ```
-
 
 For more detailed usage instructions, refer to the `--help` option:
 
 ```sh
 # General usage
-git gen --help
+git-gen --help
 
 # Help for commit messages feature
-git gen commit --help
+git-gen commit --help
 
 # Help for code review feature
-git gen review --help
+git-gen review --help
 ```
 
 ## Contributing
