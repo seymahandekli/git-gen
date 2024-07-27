@@ -1,9 +1,10 @@
 package gitgen
 
 import (
-	"bytes"
 	"fmt"
-	"os/exec"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 type PromptType int
@@ -13,27 +14,43 @@ const (
 	PromptCodeReview
 )
 
-func runDiff(config Config) (string, string, error) {
-	// Define the Git command
-	cmd := exec.Command("git", "diff", config.SourceRef, config.DestinationRef)
-	if config.DestinationRef == "" {
-		cmd = exec.Command("git", "diff", config.SourceRef)	
-	}
-	
-	// Create buffers to capture the output and error
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	// Run the command
-	err := cmd.Run()
+func runDiff(config Config) (string, error) {
+	repo, err := git.PlainOpen(".")
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
-	// Convert the output to a string
-	return stdout.String(), stderr.String(), nil
+	srcRef, err := repo.ResolveRevision(plumbing.Revision(config.SourceRef))
+	if err != nil {
+		return "", err
+	}
+
+	var destRef *plumbing.Hash
+	if config.DestinationRef != "" {
+		destRef, err = repo.ResolveRevision(plumbing.Revision(config.DestinationRef))
+	} else {
+		destRef, err = repo.ResolveRevision(plumbing.Revision("HEAD"))
+	}
+	if err != nil {
+		return "", err
+	}
+
+	srcCommit, err := repo.CommitObject(*srcRef)
+	if err != nil {
+		return "", err
+	}
+
+	destCommit, err := repo.CommitObject(*destRef)
+	if err != nil {
+		return "", err
+	}
+
+	patch, err := destCommit.Patch(srcCommit)
+	if err != nil {
+		return "", err
+	}
+
+	return patch.String(), nil
 }
 
 func getPrompt(promptType PromptType) string {
@@ -54,7 +71,7 @@ func Do(promptType PromptType, config Config) (string, error) {
 	systemPrompt := getPrompt(promptType)
 
 	// Run the git diff command
-	userPrompt, _, err := runDiff(config)
+	userPrompt, err := runDiff(config)
 	if err != nil {
 		return "", err
 	}
