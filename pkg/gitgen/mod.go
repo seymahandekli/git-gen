@@ -7,6 +7,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
+//go:generate stringer -type=PromptType
 type PromptType int
 
 const (

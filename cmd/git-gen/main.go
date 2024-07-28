@@ -15,7 +15,6 @@ func main() {
 	var destinationRef string
 	var promptModel string
 	var maxTokens int64
-	
 
 	cmd := &cli.Command{
 		Name:  "git-gen",
@@ -59,14 +58,15 @@ func main() {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					config := gitgen.DefaultConfig()
-					config.OpenApiKey = openAiKey
-					config.SourceRef = sourceRef
-					config.DestinationRef = destinationRef
-					config.PromptMaxTokens = maxTokens
-					config.PromptModel = promptModel
-					
-					result, err := gitgen.Do(gitgen.PromptCommitMessage, config)
+					config := gitgen.NewConfig(
+						gitgen.WithOpenApiKey(openAiKey),
+						gitgen.WithSourceRef(sourceRef),
+						gitgen.WithDestinationRef(destinationRef),
+						gitgen.WithPromptModel(promptModel),
+						gitgen.WithPromptMaxTokens(maxTokens),
+					)
+
+					result, err := gitgen.Do(gitgen.PromptCommitMessage, *config)
 
 					if err != nil {
 						return err
@@ -113,15 +113,15 @@ func main() {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					config := gitgen.DefaultConfig()
-					config.OpenApiKey = openAiKey
-					config.SourceRef = sourceRef
-					config.DestinationRef = destinationRef
-					config.PromptMaxTokens = maxTokens
-					config.PromptModel = promptModel
-					
+					config := gitgen.NewConfig(
+						gitgen.WithOpenApiKey(openAiKey),
+						gitgen.WithSourceRef(sourceRef),
+						gitgen.WithDestinationRef(destinationRef),
+						gitgen.WithPromptModel(promptModel),
+						gitgen.WithPromptMaxTokens(maxTokens),
+					)
 
-					result, err := gitgen.Do(gitgen.PromptCodeReview, config)
+					result, err := gitgen.Do(gitgen.PromptCodeReview, *config)
 
 					if err != nil {
 						return err
