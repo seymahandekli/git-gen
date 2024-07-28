@@ -72,7 +72,7 @@ func ExecPrompt(systemPrompt string, userPrompt string, config Config) (*PromptR
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+config.OpenApiKey)
+	req.Header.Set("Authorization", "Bearer "+config.OpenAiKey)
 
 	// Send the request
 	client := &http.Client{
