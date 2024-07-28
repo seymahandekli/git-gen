@@ -59,7 +59,7 @@ func main() {
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.NewConfig(
-						gitgen.WithOpenApiKey(openAiKey),
+						gitgen.WithOpenAiKey(openAiKey),
 						gitgen.WithSourceRef(sourceRef),
 						gitgen.WithDestinationRef(destinationRef),
 						gitgen.WithPromptModel(promptModel),
@@ -114,7 +114,7 @@ func main() {
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.NewConfig(
-						gitgen.WithOpenApiKey(openAiKey),
+						gitgen.WithOpenAiKey(openAiKey),
 						gitgen.WithSourceRef(sourceRef),
 						gitgen.WithDestinationRef(destinationRef),
 						gitgen.WithPromptModel(promptModel),

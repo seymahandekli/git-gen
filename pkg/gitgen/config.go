@@ -1,7 +1,7 @@
 package gitgen
 
 type Config struct {
-	OpenApiKey                  string
+	OpenAiKey                   string
 	SourceRef                   string
 	DestinationRef              string
 	PromptModel                 string
@@ -11,9 +11,9 @@ type Config struct {
 
 type ConfigOption func(*Config)
 
-func WithOpenApiKey(apiKey string) ConfigOption {
+func WithOpenAiKey(apiKey string) ConfigOption {
 	return func(c *Config) {
-		c.OpenApiKey = apiKey
+		c.OpenAiKey = apiKey
 	}
 }
 
@@ -49,7 +49,7 @@ func WithPromptRequestTimeoutSeconds(timeout int64) ConfigOption {
 
 func NewConfig(opts ...ConfigOption) *Config {
 	config := &Config{
-		OpenApiKey:                  "",
+		OpenAiKey:                   "",
 		SourceRef:                   "HEAD",
 		DestinationRef:              "",
 		PromptModel:                 "gpt-4o",
