@@ -1,10 +1,15 @@
 package gitgen
 
 import (
+	"bytes"
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+
+	"github.com/seymahandekli/git-gen/pkg/models"
 )
 
 //go:generate stringer -type=PromptType
@@ -15,38 +20,85 @@ const (
 	PromptCodeReview
 )
 
-func runDiff(config Config) (string, error) {
-	repo, err := git.PlainOpen(".")
+func runDiffOnCli(config Config) (string, error) {
+	// Define the Git command
+	cmd := exec.Command("git", "diff", config.SourceRef, config.DestinationRef)
+	if config.DestinationRef == "" {
+		cmd = exec.Command("git", "diff", config.SourceRef)
+	}
+
+	// Create buffers to capture the output and error
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	// Run the command
+	err := cmd.Run()
 	if err != nil {
 		return "", err
 	}
 
-	srcRef, err := repo.ResolveRevision(plumbing.Revision(config.SourceRef))
+	// Convert the output to a string
+	return stdout.String(), nil
+}
+
+func runDiffWithGoGit(config Config) (string, error) {
+	workingDir, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 
-	var destRef *plumbing.Hash
+	repo, err := git.PlainOpenWithOptions(workingDir, &git.PlainOpenOptions{DetectDotGit: true})
+	if err != nil {
+		return "", err
+	}
+
+	srcRefName := plumbing.ReferenceName(config.SourceRef)
+	if err := srcRefName.Validate(); err != nil {
+		return "", err
+	}
+	srcRef, err := repo.Reference(srcRefName, true)
+	if err != nil {
+		return "", err
+	}
+	srcCommit, err := repo.CommitObject(srcRef.Hash())
+	if err != nil {
+		return "", err
+	}
+	srcTree, err := srcCommit.Tree()
+	if err != nil {
+		return "", err
+	}
+
+	var destRef *plumbing.Reference
+
 	if config.DestinationRef != "" {
-		destRef, err = repo.ResolveRevision(plumbing.Revision(config.DestinationRef))
+		destRefName := plumbing.ReferenceName(config.DestinationRef)
+		if err := destRefName.Validate(); err != nil {
+			return "", err
+		}
+		destRef, err = repo.Reference(destRefName, true)
+		if err != nil {
+			return "", err
+		}
 	} else {
-		destRef, err = repo.ResolveRevision(plumbing.Revision("HEAD"))
+		destRef, err = repo.Storer.Reference(plumbing.HEAD)
+		if err != nil {
+			return "", err
+		}
 	}
+
+	destCommit, err := repo.CommitObject(destRef.Hash())
+	if err != nil {
+		return "", err
+	}
+	destTree, err := destCommit.Tree()
 	if err != nil {
 		return "", err
 	}
 
-	srcCommit, err := repo.CommitObject(*srcRef)
-	if err != nil {
-		return "", err
-	}
-
-	destCommit, err := repo.CommitObject(*destRef)
-	if err != nil {
-		return "", err
-	}
-
-	patch, err := destCommit.Patch(srcCommit)
+	patch, err := destTree.Diff(srcTree)
 	if err != nil {
 		return "", err
 	}
@@ -69,24 +121,37 @@ func getPrompt(promptType PromptType) string {
 }
 
 func Do(promptType PromptType, config Config) (string, error) {
-	systemPrompt := getPrompt(promptType)
-
 	// Run the git diff command
-	userPrompt, err := runDiff(config)
+	userPrompt, err := runDiffOnCli(config)
 	if err != nil {
 		return "", err
 	}
+
+	systemPrompt := getPrompt(promptType)
 
 	fmt.Println("System Prompt:")
 	fmt.Println(systemPrompt)
 	fmt.Println("User Prompt:")
 	fmt.Println(userPrompt)
 
-	content, err := ExecPrompt(systemPrompt, userPrompt, config)
+	modelConfig := models.ModelConfig{
+		ApiKey:                      config.OpenAiKey,
+		PromptModel:                 config.PromptModel,
+		PromptMaxTokens:             config.PromptMaxTokens,
+		PromptRequestTimeoutSeconds: config.PromptRequestTimeoutSeconds,
+	}
+
+	var runtime models.Model
+
+	if true {
+		runtime = models.NewOpenAi()
+	}
+
+	response, err := runtime.ExecPrompt(systemPrompt, userPrompt, modelConfig)
 	if err != nil {
 		return "", err
 	}
 
-	fmt.Println("OpenAI Response:")
-	return content.Choices[0].Message.Content, nil
+	fmt.Println("Model Response:")
+	return response.Content, nil
 }

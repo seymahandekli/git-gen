@@ -1,4 +1,4 @@
-package gitgen
+package models
 
 import (
 	"bytes"
@@ -11,18 +11,18 @@ const (
 	apiEndpoint = "https://api.openai.com/v1/chat/completions"
 )
 
-type PromptRequestMessage struct {
+type openAiPromptRequestMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-type PromptRequest struct {
-	Model     string                 `json:"model"`
-	Messages  []PromptRequestMessage `json:"messages"`
-	MaxTokens int64                  `json:"max_tokens"`
+type openAiPromptRequest struct {
+	Model     string                       `json:"model"`
+	Messages  []openAiPromptRequestMessage `json:"messages"`
+	MaxTokens int64                        `json:"max_tokens"`
 }
 
-type PromptResponse struct {
+type openAiPromptResponse struct {
 	Id      string `json:"id"`
 	Object  string `json:"object"`
 	Created int    `json:"created"`
@@ -43,11 +43,17 @@ type PromptResponse struct {
 	} `json:"choices"`
 }
 
-func ExecPrompt(systemPrompt string, userPrompt string, config Config) (*PromptResponse, error) {
+type OpenAi struct{}
+
+func NewOpenAi() *OpenAi {
+	return &OpenAi{}
+}
+
+func (o *OpenAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfig ModelConfig) (*ModelResponse, error) {
 	// Create the request body
-	request := PromptRequest{
-		Model: config.PromptModel,
-		Messages: []PromptRequestMessage{
+	request := openAiPromptRequest{
+		Model: modelConfig.PromptModel,
+		Messages: []openAiPromptRequestMessage{
 			{
 				Role:    "system",
 				Content: systemPrompt,
@@ -57,7 +63,7 @@ func ExecPrompt(systemPrompt string, userPrompt string, config Config) (*PromptR
 				Content: userPrompt,
 			},
 		},
-		MaxTokens: config.PromptMaxTokens,
+		MaxTokens: modelConfig.PromptMaxTokens,
 	}
 
 	body, err := json.MarshalIndent(request, "", "  ") // Use json.MarshalIndent for pretty printing
@@ -72,11 +78,11 @@ func ExecPrompt(systemPrompt string, userPrompt string, config Config) (*PromptR
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+config.OpenAiKey)
+	req.Header.Set("Authorization", "Bearer "+modelConfig.ApiKey)
 
 	// Send the request
 	client := &http.Client{
-		Timeout: time.Duration(config.PromptRequestTimeoutSeconds) * time.Second,
+		Timeout: time.Duration(modelConfig.PromptRequestTimeoutSeconds) * time.Second,
 	}
 	res, err := client.Do(req)
 	if err != nil {
@@ -84,12 +90,16 @@ func ExecPrompt(systemPrompt string, userPrompt string, config Config) (*PromptR
 	}
 	defer res.Body.Close()
 
-	var data PromptResponse
+	var data openAiPromptResponse
 
 	err = json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
 		return nil, err
 	}
 
-	return &data, nil
+	response := ModelResponse{
+		Content: data.Choices[0].Message.Content,
+	}
+
+	return &response, nil
 }
