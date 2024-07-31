@@ -1,6 +1,8 @@
 module github.com/seymahandekli/git-gen
 
-go 1.22
+go 1.22.0
+
+toolchain go1.22.5
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
@@ -29,6 +31,7 @@ require (
 
 require (
 	github.com/go-git/go-git/v5 v5.12.0
+	github.com/ollama/ollama v0.3.1
 	github.com/urfave/cli/v3 v3.0.0-alpha9
 	golang.org/x/tools v0.23.0
 )
