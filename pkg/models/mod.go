@@ -3,6 +3,7 @@ package models
 type ModelConfig struct {
 	ApiKey                      string
 	PromptModel                 string
+	OllamaAiModel               string
 	PromptMaxTokens             int64
 	PromptRequestTimeoutSeconds int64
 }

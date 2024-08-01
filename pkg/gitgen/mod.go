@@ -137,6 +137,7 @@ func Do(promptType PromptType, config Config) (string, error) {
 	modelConfig := models.ModelConfig{
 		ApiKey:                      config.OpenAiKey,
 		PromptModel:                 config.PromptModel,
+		OllamaAiModel:               config.OllamaAiModel,
 		PromptMaxTokens:             config.PromptMaxTokens,
 		PromptRequestTimeoutSeconds: config.PromptRequestTimeoutSeconds,
 	}

@@ -5,6 +5,7 @@ type Config struct {
 	SourceRef                   string
 	DestinationRef              string
 	PromptModel                 string
+	OllamaAiModel			   string
 	PromptMaxTokens             int64
 	PromptRequestTimeoutSeconds int64
 }
@@ -35,6 +36,12 @@ func WithPromptModel(model string) ConfigOption {
 	}
 }
 
+func WithOllamaAiModel(model string) ConfigOption {
+	return func(c *Config) {
+		c.OllamaAiModel = model
+	}
+}
+
 func WithPromptMaxTokens(tokens int64) ConfigOption {
 	return func(c *Config) {
 		c.PromptMaxTokens = tokens
@@ -53,6 +60,7 @@ func NewConfig(opts ...ConfigOption) *Config {
 		SourceRef:                   "HEAD",
 		DestinationRef:              "",
 		PromptModel:                 "gpt-4o",
+		OllamaAiModel:               "llama3",
 		PromptMaxTokens:             3500,
 		PromptRequestTimeoutSeconds: 3600,
 	}

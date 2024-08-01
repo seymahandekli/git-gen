@@ -3,23 +3,24 @@ package models
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/ollama/ollama/api"
 )
 
-type OllamaAi struct{}
+type OllamaAi struct {
+	client *api.Client
+}
 
-func NewOllamaAi() *OllamaAi {
-	return &OllamaAi{}
+func NewOllamaAi() (*OllamaAi, error) {
+	client, err := api.ClientFromEnvironment()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create Ollama API client: %w", err)
+	}
+	return &OllamaAi{client: client}, nil
+	
 }
 
 func (o *OllamaAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfig ModelConfig) (*ModelResponse, error) {
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	request := []api.Message{
 		{
 			Role:    "system",
@@ -32,17 +33,17 @@ func (o *OllamaAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfi
 	}
 	ctx := context.Background()
 	req := &api.ChatRequest{
-		Model:    "llama3",
+		Model:    modelConfig.OllamaAiModel,
 		Messages: request,
 	}
+
 	respFunc := func(resp api.ChatResponse) error {
 		fmt.Print(resp.Message.Content)
 		return nil
 	}
 
-	err = client.Chat(ctx, req, respFunc)
-	if err != nil {
-		log.Fatal(err)
+	if err := o.client.Chat(ctx, req, respFunc); err != nil {
+		return nil, fmt.Errorf("failed to execute chat request: %w", err)
 	}
 
 	return &ModelResponse{Content: "response"}, nil
