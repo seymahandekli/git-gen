@@ -21,11 +21,11 @@ func (o *OllamaAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfi
 	}
 
 	request := []api.Message{
-		api.Message{
+		{
 			Role:    "system",
 			Content: systemPrompt,
 		},
-		api.Message{
+		{
 			Role:    "user",
 			Content: userPrompt,
 		},
