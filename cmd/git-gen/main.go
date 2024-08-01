@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/seymahandekli/git-gen/pkg/gitgen"
+	"github.com/seymahandekli/git-gen/pkg/models"
 	"github.com/urfave/cli/v3"
 )
 
@@ -14,6 +15,7 @@ func main() {
 	var sourceRef string
 	var destinationRef string
 	var promptModel string
+	var ollamaAiModel string
 	var maxTokens int64
 
 	cmd := &cli.Command{
@@ -30,7 +32,6 @@ func main() {
 						Usage:       "OpenAI API key",
 						Sources:     cli.EnvVars("OPENAI_API_KEY"),
 						Destination: &openAiKey,
-						Required:    true,
 					},
 					&cli.StringFlag{
 						Name:        "source",
@@ -56,22 +57,47 @@ func main() {
 						Value:       "gpt-4o",
 						Destination: &promptModel,
 					},
+					&cli.StringFlag{
+						Name:        "ollamaai",
+						Usage:       "OllamaAI Model",
+						Value:       "llama3",
+						Destination: &ollamaAiModel,
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
+					var result string
+					var err error
+					var runtime models.Model
+
+					if openAiKey != "" {
+						config := gitgen.NewConfig(
+							gitgen.WithOpenAiKey(openAiKey),
+							gitgen.WithSourceRef(sourceRef),
+							gitgen.WithDestinationRef(destinationRef),
+							gitgen.WithPromptModel(promptModel),
+							gitgen.WithPromptMaxTokens(maxTokens),
+						)
+						runtime = models.NewOpenAi()
+						result, err = gitgen.Do(gitgen.PromptCommitMessage, *config, runtime)
+
+						if err != nil {
+							return err
+						}
+						log.Println(result)
+						return nil
+
+					}
+
 					config := gitgen.NewConfig(
-						gitgen.WithOpenAiKey(openAiKey),
 						gitgen.WithSourceRef(sourceRef),
 						gitgen.WithDestinationRef(destinationRef),
-						gitgen.WithPromptModel(promptModel),
-						gitgen.WithPromptMaxTokens(maxTokens),
+						gitgen.WithOllamaAiModel(ollamaAiModel),
 					)
-
-					result, err := gitgen.Do(gitgen.PromptCommitMessage, *config)
-
+					runtime = models.NewOllamaAi()
+					result, err = gitgen.Do(gitgen.PromptCommitMessage, *config, runtime)
 					if err != nil {
 						return err
 					}
-
 					log.Println(result)
 					return nil
 				},
@@ -85,7 +111,6 @@ func main() {
 						Usage:       "OpenAI API key",
 						Sources:     cli.EnvVars("OPENAI_API_KEY"),
 						Destination: &openAiKey,
-						Required:    true,
 					},
 					&cli.StringFlag{
 						Name:        "source",
@@ -111,18 +136,43 @@ func main() {
 						Value:       "gpt-4o",
 						Destination: &promptModel,
 					},
+					&cli.StringFlag{
+						Name:        "ollamaai",
+						Usage:       "OllamaAI Model",
+						Value:       "llama3",
+						Destination: &ollamaAiModel,
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
+					var result string
+					var err error
+					var runtime models.Model
+
+					if openAiKey != "" {
+						config := gitgen.NewConfig(
+							gitgen.WithOpenAiKey(openAiKey),
+							gitgen.WithSourceRef(sourceRef),
+							gitgen.WithDestinationRef(destinationRef),
+							gitgen.WithPromptModel(promptModel),
+							gitgen.WithPromptMaxTokens(maxTokens),
+						)
+						runtime = models.NewOpenAi()
+						result, err = gitgen.Do(gitgen.PromptCodeReview, *config, runtime)
+
+						if err != nil {
+							return err
+						}
+						log.Println(result)
+						return nil
+
+					}
 					config := gitgen.NewConfig(
-						gitgen.WithOpenAiKey(openAiKey),
 						gitgen.WithSourceRef(sourceRef),
 						gitgen.WithDestinationRef(destinationRef),
-						gitgen.WithPromptModel(promptModel),
-						gitgen.WithPromptMaxTokens(maxTokens),
+						gitgen.WithOllamaAiModel(ollamaAiModel),
 					)
-
-					result, err := gitgen.Do(gitgen.PromptCodeReview, *config)
-
+					runtime = models.NewOllamaAi()
+					result, err = gitgen.Do(gitgen.PromptCodeReview, *config, runtime)
 					if err != nil {
 						return err
 					}
