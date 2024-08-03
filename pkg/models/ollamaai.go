@@ -11,13 +11,13 @@ type OllamaAi struct {
 	client *api.Client
 }
 
-func NewOllamaAi() *OllamaAi {
+func NewOllamaAi() (*OllamaAi, error) {
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
-		println(fmt.Errorf("failed to create OllamaAi client: %w", err))
+		return nil, fmt.Errorf("failed to create Ollama API client: %w", err)
 	}
-	return &OllamaAi{client: client}
-
+	return &OllamaAi{client: client}, nil
+	
 }
 
 func (o *OllamaAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfig ModelConfig) (*ModelResponse, error) {

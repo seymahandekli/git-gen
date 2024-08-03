@@ -120,7 +120,7 @@ func getPrompt(promptType PromptType) string {
 	return prompt
 }
 
-func Do(promptType PromptType, config Config, runtime models.Model) (string, error) {
+func Do(promptType PromptType, config Config) (string, error) {
 	// Run the git diff command
 	userPrompt, err := runDiffOnCli(config)
 	if err != nil {
@@ -142,6 +142,11 @@ func Do(promptType PromptType, config Config, runtime models.Model) (string, err
 		PromptRequestTimeoutSeconds: config.PromptRequestTimeoutSeconds,
 	}
 
+	var runtime models.Model
+
+	if true {
+		runtime = models.NewOpenAi()
+	}
 
 	response, err := runtime.ExecPrompt(systemPrompt, userPrompt, modelConfig)
 	if err != nil {
