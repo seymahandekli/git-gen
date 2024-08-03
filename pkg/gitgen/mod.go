@@ -2,6 +2,8 @@ package gitgen
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,6 +20,10 @@ type PromptType int
 const (
 	PromptCommitMessage PromptType = iota
 	PromptCodeReview
+)
+
+var (
+	ErrUnknownPlatform = errors.New("unknown platform")
 )
 
 func runDiffOnCli(config Config) (string, error) {
@@ -120,7 +126,7 @@ func getPrompt(promptType PromptType) string {
 	return prompt
 }
 
-func Do(promptType PromptType, config Config, runtime models.Model) (string, error) {
+func Do(promptType PromptType, config Config) (string, error) {
 	// Run the git diff command
 	userPrompt, err := runDiffOnCli(config)
 	if err != nil {
@@ -135,15 +141,29 @@ func Do(promptType PromptType, config Config, runtime models.Model) (string, err
 	fmt.Println(userPrompt)
 
 	modelConfig := models.ModelConfig{
-		ApiKey:                      config.OpenAiKey,
-		PromptModel:                 config.PromptModel,
-		OllamaAiModel:               config.OllamaAiModel,
+		PlatformApiKey:              config.PlatformApiKey,
+		Platform:                    config.Platform,
+		Model:                       config.Model,
 		PromptMaxTokens:             config.PromptMaxTokens,
 		PromptRequestTimeoutSeconds: config.PromptRequestTimeoutSeconds,
 	}
 
+	var runtime models.Model
 
-	response, err := runtime.ExecPrompt(systemPrompt, userPrompt, modelConfig)
+	switch modelConfig.Platform {
+	case "openai":
+		runtime = models.NewOpenAi(modelConfig)
+	case "ollama":
+		runtime, err = models.NewOllamaAi(modelConfig)
+
+		if err != nil {
+			return "", err
+		}
+	default:
+		return "", fmt.Errorf("unknown platform %s - %w", modelConfig.Platform, ErrUnknownPlatform)
+	}
+
+	response, err := runtime.ExecPrompt(context.Background(), systemPrompt, userPrompt)
 	if err != nil {
 		return "", err
 	}

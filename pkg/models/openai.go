@@ -2,13 +2,20 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 )
 
 const (
-	apiEndpoint = "https://api.openai.com/v1/chat/completions"
+	apiEndpoint        = "https://api.openai.com/v1/chat/completions"
+	openaiDefaultModel = "gpt-4o"
+)
+
+var (
+	ErrPlatformApiKeyIsRequired = errors.New("OpenAI platform requires PLATFORM_API_KEY is specified")
 )
 
 type openAiPromptRequestMessage struct {
@@ -43,16 +50,31 @@ type openAiPromptResponse struct {
 	} `json:"choices"`
 }
 
-type OpenAi struct{}
-
-func NewOpenAi() *OpenAi {
-	return &OpenAi{}
+type OpenAi struct {
+	modelConfig ModelConfig
 }
 
-func (o *OpenAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfig ModelConfig) (*ModelResponse, error) {
+func NewOpenAi(modelConfig ModelConfig) *OpenAi {
+	return &OpenAi{
+		modelConfig: modelConfig,
+	}
+}
+
+func (o *OpenAi) ExecPrompt(ctx context.Context, systemPrompt string, userPrompt string) (*ModelResponse, error) {
+	if o.modelConfig.PlatformApiKey == "" {
+		return nil, ErrPlatformApiKeyIsRequired
+	}
+
+	var targetModel string = openaiDefaultModel
+
+	// if model is specified by user
+	if o.modelConfig.Model != "" {
+		targetModel = o.modelConfig.Model
+	}
+
 	// Create the request body
 	request := openAiPromptRequest{
-		Model: modelConfig.PromptModel,
+		Model: targetModel,
 		Messages: []openAiPromptRequestMessage{
 			{
 				Role:    "system",
@@ -63,7 +85,7 @@ func (o *OpenAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfig 
 				Content: userPrompt,
 			},
 		},
-		MaxTokens: modelConfig.PromptMaxTokens,
+		MaxTokens: o.modelConfig.PromptMaxTokens,
 	}
 
 	body, err := json.MarshalIndent(request, "", "  ") // Use json.MarshalIndent for pretty printing
@@ -72,17 +94,17 @@ func (o *OpenAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfig 
 	}
 
 	// Create the HTTP request
-	req, err := http.NewRequest("POST", apiEndpoint, bytes.NewBuffer(body))
+	req, err := http.NewRequestWithContext(ctx, "POST", apiEndpoint, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+modelConfig.ApiKey)
+	req.Header.Set("Authorization", "Bearer "+o.modelConfig.PlatformApiKey)
 
 	// Send the request
 	client := &http.Client{
-		Timeout: time.Duration(modelConfig.PromptRequestTimeoutSeconds) * time.Second,
+		Timeout: time.Duration(o.modelConfig.PromptRequestTimeoutSeconds) * time.Second,
 	}
 	res, err := client.Do(req)
 	if err != nil {

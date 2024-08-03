@@ -1,9 +1,11 @@
 package models
 
+import "context"
+
 type ModelConfig struct {
-	ApiKey                      string
-	PromptModel                 string
-	OllamaAiModel               string
+	PlatformApiKey              string
+	Platform                    string
+	Model                       string
 	PromptMaxTokens             int64
 	PromptRequestTimeoutSeconds int64
 }
@@ -13,5 +15,5 @@ type ModelResponse struct {
 }
 
 type Model interface {
-	ExecPrompt(systemPrompt string, userPrompt string, modelConfig ModelConfig) (*ModelResponse, error)
+	ExecPrompt(ctx context.Context, systemPrompt string, userPrompt string) (*ModelResponse, error)
 }

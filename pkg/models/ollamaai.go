@@ -7,20 +7,36 @@ import (
 	"github.com/ollama/ollama/api"
 )
 
+const (
+	ollamaDefaultModel = "llama3"
+)
+
 type OllamaAi struct {
+	modelConfig ModelConfig
+
 	client *api.Client
 }
 
-func NewOllamaAi() *OllamaAi {
+func NewOllamaAi(modelConfig ModelConfig) (*OllamaAi, error) {
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
-		println(fmt.Errorf("failed to create OllamaAi client: %w", err))
+		return nil, fmt.Errorf("failed to create Ollama API client: %w", err)
 	}
-	return &OllamaAi{client: client}
 
+	return &OllamaAi{
+		modelConfig: modelConfig,
+		client:      client,
+	}, nil
 }
 
-func (o *OllamaAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfig ModelConfig) (*ModelResponse, error) {
+func (o *OllamaAi) ExecPrompt(ctx context.Context, systemPrompt string, userPrompt string) (*ModelResponse, error) {
+	var targetModel string = ollamaDefaultModel
+
+	// if model is specified by user
+	if o.modelConfig.Model != "" {
+		targetModel = o.modelConfig.Model
+	}
+
 	request := []api.Message{
 		{
 			Role:    "system",
@@ -31,9 +47,9 @@ func (o *OllamaAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfi
 			Content: userPrompt,
 		},
 	}
-	ctx := context.Background()
+
 	req := &api.ChatRequest{
-		Model:    modelConfig.OllamaAiModel,
+		Model:    targetModel,
 		Messages: request,
 	}
 
@@ -47,5 +63,4 @@ func (o *OllamaAi) ExecPrompt(systemPrompt string, userPrompt string, modelConfi
 	}
 
 	return &ModelResponse{Content: "response"}, nil
-
 }
