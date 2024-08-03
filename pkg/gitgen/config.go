@@ -1,20 +1,20 @@
 package gitgen
 
 type Config struct {
-	OpenAiKey                   string
+	PlatformApiKey              string
 	SourceRef                   string
 	DestinationRef              string
-	PromptModel                 string
-	OllamaAiModel			   string
+	Platform                    string
+	Model                       string
 	PromptMaxTokens             int64
 	PromptRequestTimeoutSeconds int64
 }
 
 type ConfigOption func(*Config)
 
-func WithOpenAiKey(apiKey string) ConfigOption {
+func WithPlatformApiKey(apiKey string) ConfigOption {
 	return func(c *Config) {
-		c.OpenAiKey = apiKey
+		c.PlatformApiKey = apiKey
 	}
 }
 
@@ -30,15 +30,15 @@ func WithDestinationRef(ref string) ConfigOption {
 	}
 }
 
-func WithPromptModel(model string) ConfigOption {
+func WithPlatform(platform string) ConfigOption {
 	return func(c *Config) {
-		c.PromptModel = model
+		c.Platform = platform
 	}
 }
 
-func WithOllamaAiModel(model string) ConfigOption {
+func WithModel(model string) ConfigOption {
 	return func(c *Config) {
-		c.OllamaAiModel = model
+		c.Model = model
 	}
 }
 
@@ -56,11 +56,11 @@ func WithPromptRequestTimeoutSeconds(timeout int64) ConfigOption {
 
 func NewConfig(opts ...ConfigOption) *Config {
 	config := &Config{
-		OpenAiKey:                   "",
+		PlatformApiKey:              "",
 		SourceRef:                   "HEAD",
 		DestinationRef:              "",
-		PromptModel:                 "gpt-4o",
-		OllamaAiModel:               "llama3",
+		Platform:                    "openai",
+		Model:                       "",
 		PromptMaxTokens:             3500,
 		PromptRequestTimeoutSeconds: 3600,
 	}

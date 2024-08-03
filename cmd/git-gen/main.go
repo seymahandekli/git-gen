@@ -10,10 +10,11 @@ import (
 )
 
 func main() {
-	var openAiKey string
+	var platformApiKey string
 	var sourceRef string
 	var destinationRef string
-	var promptModel string
+	var platform string
+	var model string
 	var maxTokens int64
 
 	cmd := &cli.Command{
@@ -27,10 +28,9 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "apikey",
-						Usage:       "OpenAI API key",
-						Sources:     cli.EnvVars("OPENAI_API_KEY"),
-						Destination: &openAiKey,
-						Required:    true,
+						Usage:       "Platform API key",
+						Sources:     cli.EnvVars("PLATFORM_API_KEY"),
+						Destination: &platformApiKey,
 					},
 					&cli.StringFlag{
 						Name:        "source",
@@ -44,25 +44,32 @@ func main() {
 						Value:       "",
 						Destination: &destinationRef,
 					},
+					&cli.StringFlag{
+						Name:        "platform",
+						Usage:       "Platform",
+						Value:       "openai",
+						Destination: &platform,
+					},
+					&cli.StringFlag{
+						Name:        "model",
+						Usage:       "Model",
+						Value:       "",
+						Destination: &model,
+					},
 					&cli.IntFlag{
 						Name:        "maxtokens",
 						Usage:       "Maximum tokens to generate",
 						Value:       3500,
 						Destination: &maxTokens,
 					},
-					&cli.StringFlag{
-						Name:        "model",
-						Usage:       "OpenAI Model",
-						Value:       "gpt-4o",
-						Destination: &promptModel,
-					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.NewConfig(
-						gitgen.WithOpenAiKey(openAiKey),
+						gitgen.WithPlatformApiKey(platformApiKey),
 						gitgen.WithSourceRef(sourceRef),
 						gitgen.WithDestinationRef(destinationRef),
-						gitgen.WithPromptModel(promptModel),
+						gitgen.WithPlatform(platform),
+						gitgen.WithModel(model),
 						gitgen.WithPromptMaxTokens(maxTokens),
 					)
 
@@ -82,10 +89,9 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "apikey",
-						Usage:       "OpenAI API key",
-						Sources:     cli.EnvVars("OPENAI_API_KEY"),
-						Destination: &openAiKey,
-						Required:    true,
+						Usage:       "Platform API key",
+						Sources:     cli.EnvVars("PLATFORM_API_KEY"),
+						Destination: &platformApiKey,
 					},
 					&cli.StringFlag{
 						Name:        "source",
@@ -99,25 +105,32 @@ func main() {
 						Value:       "",
 						Destination: &destinationRef,
 					},
+					&cli.StringFlag{
+						Name:        "platform",
+						Usage:       "Platform",
+						Value:       "openai",
+						Destination: &platform,
+					},
+					&cli.StringFlag{
+						Name:        "model",
+						Usage:       "Model",
+						Value:       "",
+						Destination: &model,
+					},
 					&cli.IntFlag{
 						Name:        "maxtokens",
 						Usage:       "Maximum tokens to generate",
 						Value:       3500,
 						Destination: &maxTokens,
 					},
-					&cli.StringFlag{
-						Name:        "model",
-						Usage:       "OpenAI Model",
-						Value:       "gpt-4o",
-						Destination: &promptModel,
-					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					config := gitgen.NewConfig(
-						gitgen.WithOpenAiKey(openAiKey),
+						gitgen.WithPlatformApiKey(platformApiKey),
 						gitgen.WithSourceRef(sourceRef),
 						gitgen.WithDestinationRef(destinationRef),
-						gitgen.WithPromptModel(promptModel),
+						gitgen.WithPlatform(platform),
+						gitgen.WithModel(model),
 						gitgen.WithPromptMaxTokens(maxTokens),
 					)
 
