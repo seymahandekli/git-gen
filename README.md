@@ -1,6 +1,6 @@
 # git-gen
 
-`git-gen` is a command-line tool developed in Go that generates commit messages and code reviews based on code changes in your project by utilizing OpenAI's ChatGPT API.
+`git-gen` is a command-line tool developed in Go that generates commit messages and code reviews based on code changes in your project by utilizing OpenAI's ChatGPT API and Ollama API.
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@
 
 ## Introduction
 
-`git-gen` is designed to assist developers in creating detailed commit messages and/or performing code reviews automatically depending on their codebase changes. By leveraging the power of ChatGPT, `git-gen` analyzes the changes made to the code and generates meaningful output.
+`git-gen` is designed to assist developers in creating detailed commit messages and/or performing code reviews automatically depending on their codebase changes. By leveraging the power of ChatGPT and Ollama, `git-gen` analyzes the changes made to the code and generates meaningful output.
 
 ## Features
 
@@ -44,27 +44,29 @@ go install github.com/seymahandekli/git-gen/cmd/git-gen@latest
 
 After building `git-gen`, you can use it from the command line. Below are some example commands to help you get started:
 
-### Alternative 1:
+### Using OpenAI API
+
+#### Alternative 1:
 
 ```sh
-# Generate commit message based on your git diff command choices
-git gen commit --source "commitID" --dest "commitID" --apikey "YOUR_OPENAI_KEY"
+# Generate commit message based on your git diff command choices (default platform: openai)
+git gen commit --source "commitID" --dest "commitID" --apikey "PLATFORM_API_KEY" --platform openai --model YOUR_MODEL
 
 # default `git diff HEAD´ command
-git gen commit --apikey "YOUR_OPENAI_KEY"
+git gen commit --apikey "PLATFORM_API_KEY"
 
 # Generate code review
-git gen review --apikey "YOUR_OPENAI_KEY"
+git gen review --apikey "PLATFORM_API_KEY"
 ```
 
-### Alternative 2:
+#### Alternative 2:
 
-You don't have to specify OPENAI API KEY explicitly, you may store it to `OPENAI_API_KEY` environment variable.
+You don't have to specify OPENAI API KEY explicitly, you may store it to `PLATFORM_API_KEY` environment variable.
 
 ```sh
-export OPENAI_API_KEY="YOUR_OPENAI_KEY"
+export PLATFORM_API_KEY="PLATFORM_API_KEY"
 
-# Generate commit message based on your git diff command choices
+# Generate commit message based on your git diff command choices (default platform: openai and default model: gpt4-o)
 git gen commit --source "commitID" --dest "commitID"
 
 # default `git diff HEAD´ command
@@ -72,6 +74,21 @@ git gen commit
 
 # Generate code review
 git gen review
+```
+
+### Using Ollama API (No API Key Required)
+
+You can use the Ollama API, which does not require an API key, for free
+
+```sh
+# Generate commit message based on your git diff command choices (default model: llama3)
+git gen commit --source "commitID" --dest "commitID" --platform ollama --model YOUR_MODEL
+
+# default `git diff HEAD´ command
+git gen commit --platform ollama --model YOUR_MODEL
+
+# Generate code review
+git gen review --platform ollama --model YOUR_MODEL
 ```
 
 
@@ -103,6 +120,11 @@ For major changes, please open an issue first to discuss what you would like to 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## Contributors
+
+- Eser Özvataf (https://github.com/eser)
+- Daniel M. Matongo (https://github.com/mmatongo)
 
 ## Acknowledgement
 
