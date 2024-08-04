@@ -20,6 +20,7 @@ type PromptType int
 const (
 	PromptCommitMessage PromptType = iota
 	PromptCodeReview
+	PromptTestCase
 )
 
 var (
@@ -121,6 +122,8 @@ func getPrompt(promptType PromptType) string {
 	case PromptCodeReview:
 		prompt = "please perform a efficient and concise code review which points out crucial improvements could be changed on the target code. the target code is stated above which is an output of a git diff command. all response of this message should be wrapped in a markdown format because it will be shared in a text-only terminal interface."
 
+	case PromptTestCase:
+		prompt = "Please generate detailed test cases from the changes stated above, which is an output of a git diff command. The test cases should be comprehensive and cover all the modifications, additions, and deletions in the code. All responses to this message should be wrapped in a markdown format because it will be shared in a text-only terminal interface. Ensure that the test cases include the following details\n- Description,\n- Steps, Detailed steps to execute the test case. \n- Expected Result, The expected outcome of the test case.\n- Actual Result, (This will be filled out during testing.)"
 	}
 
 	return prompt
