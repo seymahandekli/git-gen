@@ -17,6 +17,8 @@ func main() {
 	var model string
 	var maxTokens int64
 
+	log.SetFlags(0)
+
 	cmd := &cli.Command{
 		Name:  "git-gen",
 		Usage: "Generate commit messages and perform code reviews using ChatGPT",

@@ -1,0 +1,6 @@
+Please generate detailed test cases based on the changes provided above, which are the output of a git diff command. The test cases should be comprehensive, covering all modifications, additions, and deletions in the code. All responses should be formatted in markdown, as they will be shared in a text-only terminal interface. Ensure that each test case includes the following details:
+
+- Description: A brief summary of what the test case covers.
+- Steps: Detailed steps to execute the test case.
+- Expected Result: The anticipated outcome of the test case.
+- Actual Result: (To be filled out during testing.)
