@@ -1,12 +1,14 @@
 package gitgen
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
+
+	_ "embed"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -16,6 +18,17 @@ import (
 
 //go:generate stringer -type=PromptType
 type PromptType int
+
+var (
+	//go:embed prompts/commit-message.txt
+	PromptForCommit string
+
+	//go:embed prompts/code-review.txt
+	PromptForCodeReview string
+
+	//go:embed prompts/test-case.txt
+	PromptForTestCase string
+)
 
 const (
 	PromptCommitMessage PromptType = iota
@@ -29,25 +42,41 @@ var (
 
 func runDiffOnCli(config Config) (string, error) {
 	// Define the Git command
-	cmd := exec.Command("git", "diff", config.SourceRef, config.DestinationRef)
-	if config.DestinationRef == "" {
-		cmd = exec.Command("git", "diff", config.SourceRef)
+	cmdArgs := []string{
+		"diff",
+		"--patch",
+		"--minimal",
+		"--diff-algorithm=minimal",
+		"--ignore-all-space",
+		"--ignore-blank-lines",
+		"--no-ext-diff",
+		"--no-color",
+		"--unified=10",
+		config.SourceRef,
+	}
+	if config.DestinationRef != "" {
+		cmdArgs = append(cmdArgs, config.DestinationRef)
 	}
 
-	// Create buffers to capture the output and error
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	cmd := exec.Command("git", cmdArgs...)
 
-	// Run the command
-	err := cmd.Run()
+	// cmd.Env = os.Environ()
+
+	// var newEnv []string
+	// for _, e := range cmd.Env {
+	// 	if e[:18] != "GIT_EXTERNAL_DIFF=" {
+	// 		newEnv = append(newEnv, e)
+	// 	}
+	// }
+	// cmd.Env = newEnv
+
+	output, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
 
 	// Convert the output to a string
-	return stdout.String(), nil
+	return string(output), nil
 }
 
 func runDiffWithGoGit(config Config) (string, error) {
@@ -113,35 +142,30 @@ func runDiffWithGoGit(config Config) (string, error) {
 	return patch.String(), nil
 }
 
-func getPrompt(promptType PromptType) string {
-	var prompt string
-	switch promptType {
-	case PromptCommitMessage:
-		prompt = "please generate a git commit message with a simple explanation from the changes stated above which is an output of a git diff command. all response of this message should be wrapped in a markdown format because it will be shared in a text-only terminal interface."
-
-	case PromptCodeReview:
-		prompt = "please perform a efficient and concise code review which points out crucial improvements could be changed on the target code. the target code is stated above which is an output of a git diff command. all response of this message should be wrapped in a markdown format because it will be shared in a text-only terminal interface."
-
-	case PromptTestCase:
-		prompt = "Please generate detailed test cases from the changes stated above, which is an output of a git diff command. The test cases should be comprehensive and cover all the modifications, additions, and deletions in the code. All responses to this message should be wrapped in a markdown format because it will be shared in a text-only terminal interface. Ensure that the test cases include the following details\n- Description,\n- Steps, Detailed steps to execute the test case. \n- Expected Result, The expected outcome of the test case.\n- Actual Result, (This will be filled out during testing.)"
+func GetPrompt(promptType PromptType) string {
+	if promptType == PromptCommitMessage {
+		return PromptForCommit
 	}
 
-	return prompt
+	if promptType == PromptCodeReview {
+		return PromptForCodeReview
+	}
+
+	return PromptForTestCase
 }
 
 func Do(promptType PromptType, config Config) (string, error) {
+	systemPrompt := GetPrompt(promptType)
+
 	// Run the git diff command
 	userPrompt, err := runDiffOnCli(config)
 	if err != nil {
 		return "", err
 	}
 
-	systemPrompt := getPrompt(promptType)
-
-	fmt.Println("System Prompt:")
-	fmt.Println(systemPrompt)
-	fmt.Println("User Prompt:")
-	fmt.Println(userPrompt)
+	log.Printf("System Prompt:\n%s\n\n", systemPrompt)
+	// log.Printf("User Prompt:\n%s\n\n", userPrompt)
+	log.Printf("User Prompt Length:\n%d\n\n", len(userPrompt))
 
 	modelConfig := models.ModelConfig{
 		PlatformApiKey:              config.PlatformApiKey,
@@ -171,6 +195,5 @@ func Do(promptType PromptType, config Config) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("Model Response:")
 	return response.Content, nil
 }
