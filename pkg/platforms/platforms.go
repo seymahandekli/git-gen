@@ -9,8 +9,9 @@ import (
 type Platform string
 
 const (
-	PlatformOpenAI Platform = "openai"
-	PlatformOllama Platform = "ollama"
+	PlatformOpenAI    Platform = "openai"
+	PlatformOllama    Platform = "ollama"
+	PlatformAnthropic Platform = "anthropic"
 )
 
 var (
@@ -48,6 +49,8 @@ func NewPromptExecutor(platform Platform, platformConfig PlatformConfig) (Prompt
 		return NewOpenAi(platformConfig), nil
 	case PlatformOllama:
 		return NewOllama(platformConfig)
+	case PlatformAnthropic:
+		return NewAnthropic(platformConfig), nil
 	default:
 		return nil, fmt.Errorf("unknown platform %s - %w", platform, ErrUnknownPlatform)
 	}
