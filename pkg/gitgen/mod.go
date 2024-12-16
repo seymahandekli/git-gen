@@ -2,42 +2,23 @@ package gitgen
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
 
-	_ "embed"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 
-	"github.com/seymahandekli/git-gen/pkg/models"
+	"github.com/seymahandekli/git-gen/pkg/platforms"
 )
 
-//go:generate stringer -type=PromptType
-type PromptType int
-
-var (
-	//go:embed prompts/commit-message.txt
-	PromptForCommit string
-
-	//go:embed prompts/code-review.txt
-	PromptForCodeReview string
-
-	//go:embed prompts/test-case.txt
-	PromptForTestCase string
-)
+//go:generate stringer -type=ActionType
+type ActionType int
 
 const (
-	PromptCommitMessage PromptType = iota
-	PromptCodeReview
-	PromptTestCase
-)
-
-var (
-	ErrUnknownPlatform = errors.New("unknown platform")
+	ActionCommitMessage ActionType = iota
+	ActionCodeReview
+	ActionTestCase
 )
 
 func runDiffOnCli(config Config) (string, error) {
@@ -142,55 +123,35 @@ func runDiffWithGoGit(config Config) (string, error) {
 	return patch.String(), nil
 }
 
-func GetPrompt(promptType PromptType) string {
-	if promptType == PromptCommitMessage {
-		return PromptForCommit
-	}
-
-	if promptType == PromptCodeReview {
-		return PromptForCodeReview
-	}
-
-	return PromptForTestCase
-}
-
-func Do(promptType PromptType, config Config) (string, error) {
-	systemPrompt := GetPrompt(promptType)
-
+func Do(actionType ActionType, config Config) (string, error) {
 	// Run the git diff command
-	userPrompt, err := runDiffOnCli(config)
+	diff, err := runDiffOnCli(config)
 	if err != nil {
 		return "", err
 	}
 
-	log.Printf("System Prompt:\n%s\n\n", systemPrompt)
-	// log.Printf("User Prompt:\n%s\n\n", userPrompt)
-	log.Printf("User Prompt Length:\n%d\n\n", len(userPrompt))
-
-	modelConfig := models.ModelConfig{
-		PlatformApiKey:              config.PlatformApiKey,
-		Platform:                    config.Platform,
+	platformConfig := platforms.PlatformConfig{
+		ApiKey:                      config.PlatformApiKey,
 		Model:                       config.Model,
 		PromptMaxTokens:             config.PromptMaxTokens,
 		PromptRequestTimeoutSeconds: config.PromptRequestTimeoutSeconds,
 	}
 
-	var runtime models.Model
-
-	switch modelConfig.Platform {
-	case "openai":
-		runtime = models.NewOpenAi(modelConfig)
-	case "ollama":
-		runtime, err = models.NewOllamaAi(modelConfig)
-
-		if err != nil {
-			return "", err
-		}
-	default:
-		return "", fmt.Errorf("unknown platform %s - %w", modelConfig.Platform, ErrUnknownPlatform)
+	// Convert string to Platform type
+	platform := platforms.Platform(config.Platform)
+	runtime, err := platforms.NewPromptExecutor(platform, platformConfig)
+	if err != nil {
+		return "", err
 	}
 
-	response, err := runtime.ExecPrompt(context.Background(), systemPrompt, userPrompt)
+	prompt := NewPrompt(actionType)
+	prompt.SetUserPrompt(diff)
+
+	log.Printf("System Prompt:\n%s\n\n", prompt.GetSystemPrompt())
+	// log.Printf("User Prompt:\n%s\n\n", prompt.GetUserPrompt())
+	log.Printf("User Prompt Length:\n%d\n\n", len(prompt.GetUserPrompt()))
+
+	response, err := runtime.ExecPrompt(context.Background(), prompt)
 	if err != nil {
 		return "", err
 	}
