@@ -75,7 +75,7 @@ func main() {
 						gitgen.WithPromptMaxTokens(maxTokens),
 					)
 
-					result, err := gitgen.Do(gitgen.PromptCommitMessage, *config)
+					result, err := gitgen.Do(gitgen.ActionCommitMessage, *config)
 
 					if err != nil {
 						return err
@@ -136,7 +136,7 @@ func main() {
 						gitgen.WithPromptMaxTokens(maxTokens),
 					)
 
-					result, err := gitgen.Do(gitgen.PromptCodeReview, *config)
+					result, err := gitgen.Do(gitgen.ActionCodeReview, *config)
 
 					if err != nil {
 						return err
@@ -197,7 +197,7 @@ func main() {
 						gitgen.WithPromptMaxTokens(maxTokens),
 					)
 
-					result, err := gitgen.Do(gitgen.PromptTestCase, *config)
+					result, err := gitgen.Do(gitgen.ActionTestCase, *config)
 
 					if err != nil {
 						return err

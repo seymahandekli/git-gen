@@ -1,4 +1,4 @@
-package models
+package platforms
 
 import (
 	"bytes"
@@ -51,44 +51,44 @@ type openAiPromptResponse struct {
 }
 
 type OpenAi struct {
-	modelConfig ModelConfig
+	platformConfig PlatformConfig
 }
 
-func NewOpenAi(modelConfig ModelConfig) *OpenAi {
+func NewOpenAi(platformConfig PlatformConfig) *OpenAi {
 	return &OpenAi{
-		modelConfig: modelConfig,
+		platformConfig: platformConfig,
 	}
 }
 
-func (o *OpenAi) ExecPrompt(ctx context.Context, systemPrompt string, userPrompt string) (*ModelResponse, error) {
-	if o.modelConfig.PlatformApiKey == "" {
+func (o *OpenAi) ExecPrompt(ctx context.Context, promptSource PromptGenerator) (*ModelResponse, error) {
+	if o.platformConfig.ApiKey == "" {
 		return nil, ErrPlatformApiKeyIsRequired
 	}
 
 	var targetModel string = openaiDefaultModel
 
 	// if model is specified by user
-	if o.modelConfig.Model != "" {
-		targetModel = o.modelConfig.Model
+	if o.platformConfig.Model != "" {
+		targetModel = o.platformConfig.Model
 	}
 
 	// Create the request body
-	request := openAiPromptRequest{
+	payload := openAiPromptRequest{
 		Model: targetModel,
 		Messages: []openAiPromptRequestMessage{
 			{
 				Role:    "system",
-				Content: systemPrompt,
+				Content: promptSource.GetSystemPrompt(),
 			},
 			{
 				Role:    "user",
-				Content: userPrompt,
+				Content: promptSource.GetUserPrompt(),
 			},
 		},
-		MaxTokens: o.modelConfig.PromptMaxTokens,
+		MaxTokens: o.platformConfig.PromptMaxTokens,
 	}
 
-	body, err := json.MarshalIndent(request, "", "  ") // Use json.MarshalIndent for pretty printing
+	body, err := json.MarshalIndent(payload, "", "  ") // Use json.MarshalIndent for pretty printing
 	if err != nil {
 		return nil, err
 	}
@@ -100,11 +100,11 @@ func (o *OpenAi) ExecPrompt(ctx context.Context, systemPrompt string, userPrompt
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+o.modelConfig.PlatformApiKey)
+	req.Header.Set("Authorization", "Bearer "+o.platformConfig.ApiKey)
 
 	// Send the request
 	client := &http.Client{
-		Timeout: time.Duration(o.modelConfig.PromptRequestTimeoutSeconds) * time.Second,
+		Timeout: time.Duration(o.platformConfig.PromptRequestTimeoutSeconds) * time.Second,
 	}
 	res, err := client.Do(req)
 	if err != nil {
