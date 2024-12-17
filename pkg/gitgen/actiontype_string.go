@@ -10,12 +10,13 @@ func _() {
 	var x [1]struct{}
 	_ = x[ActionCommitMessage-0]
 	_ = x[ActionCodeReview-1]
-	_ = x[ActionTestCase-2]
+	_ = x[ActionTestScenario-2]
+	_ = x[ActionTest-3]
 }
 
-const _ActionType_name = "ActionCommitMessageActionCodeReviewActionTestCase"
+const _ActionType_name = "ActionCommitMessageActionCodeReviewActionTestScenarioActionTest"
 
-var _ActionType_index = [...]uint8{0, 19, 35, 49}
+var _ActionType_index = [...]uint8{0, 19, 35, 53, 63}
 
 func (i ActionType) String() string {
 	if i < 0 || i >= ActionType(len(_ActionType_index)-1) {

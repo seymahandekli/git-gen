@@ -147,8 +147,8 @@ func main() {
 				},
 			},
 			{
-				Name:  "test",
-				Usage: "Creating test cases",
+				Name:  "test-scenarios",
+				Usage: "CCreating test scenarios",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "apikey",
@@ -197,7 +197,68 @@ func main() {
 						gitgen.WithPromptMaxTokens(maxTokens),
 					)
 
-					result, err := gitgen.Do(gitgen.ActionTestCase, *config)
+					result, err := gitgen.Do(gitgen.ActionTestScenario, *config)
+
+					if err != nil {
+						return err
+					}
+
+					log.Println(result)
+					return nil
+				},
+			},
+			{
+				Name:  "test",
+				Usage: "Creating tests",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "apikey",
+						Usage:       "Platform API key",
+						Sources:     cli.EnvVars("PLATFORM_API_KEY"),
+						Destination: &platformApiKey,
+					},
+					&cli.StringFlag{
+						Name:        "source",
+						Usage:       "Source Ref",
+						Value:       "HEAD",
+						Destination: &sourceRef,
+					},
+					&cli.StringFlag{
+						Name:        "dest",
+						Usage:       "Destination Ref",
+						Value:       "",
+						Destination: &destinationRef,
+					},
+					&cli.StringFlag{
+						Name:        "platform",
+						Usage:       "Platform",
+						Value:       "openai",
+						Destination: &platform,
+					},
+					&cli.StringFlag{
+						Name:        "model",
+						Usage:       "Model",
+						Value:       "",
+						Destination: &model,
+					},
+					&cli.IntFlag{
+						Name:        "maxtokens",
+						Usage:       "Maximum tokens to generate",
+						Value:       3500,
+						Destination: &maxTokens,
+					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					config := gitgen.NewConfig(
+						gitgen.WithPlatformApiKey(platformApiKey),
+						gitgen.WithSourceRef(sourceRef),
+						gitgen.WithDestinationRef(destinationRef),
+						gitgen.WithPlatform(platform),
+						gitgen.WithModel(model),
+						gitgen.WithPromptMaxTokens(maxTokens),
+					)
+
+					result, err := gitgen.Do(gitgen.ActionTest, *config)
 
 					if err != nil {
 						return err

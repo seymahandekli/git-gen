@@ -1,0 +1,6 @@
+Please generate detailed test scenarios based on the changes provided above, which are the output of a git diff command and attached files. The test scenarios should be comprehensive, covering all modifications, additions, and deletions in the code. All responses should be formatted in markdown, as they will be shared in a text-only terminal interface. Ensure that each test scenario includes the following details:
+
+- Description: A brief summary of what the test scenario covers.
+- Steps: Detailed steps to execute the test scenario.
+- Expected Result: The anticipated outcome of the test scenario.
+- Actual Result: (To be filled out during testing.)

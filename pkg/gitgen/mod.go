@@ -18,7 +18,8 @@ type ActionType int
 const (
 	ActionCommitMessage ActionType = iota
 	ActionCodeReview
-	ActionTestCase
+	ActionTestScenario
+	ActionTest
 )
 
 func runDiffOnCli(config Config) (string, error) {
@@ -143,9 +144,11 @@ func Do(actionType ActionType, config Config) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	prompt := NewPrompt(actionType)
-	prompt.SetUserPrompt(diff)
+	prompt := &Prompt{
+		ActionType:  actionType,
+		Diff:        diff,
+		Attachments: []PromptAttachment{},
+	}
 
 	log.Printf("System Prompt:\n%s\n\n", prompt.GetSystemPrompt())
 	// log.Printf("User Prompt:\n%s\n\n", prompt.GetUserPrompt())
