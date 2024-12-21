@@ -1,4 +1,4 @@
-package platforms
+package platforms 
 
 import (
 	"context"
@@ -12,6 +12,7 @@ const (
 	PlatformOpenAI    Platform = "openai"
 	PlatformOllama    Platform = "ollama"
 	PlatformAnthropic Platform = "anthropic"
+	PlatformGemini    Platform = "gemini"
 )
 
 var (
@@ -51,7 +52,10 @@ func NewPromptExecutor(platform Platform, platformConfig PlatformConfig) (Prompt
 		return NewOllama(platformConfig)
 	case PlatformAnthropic:
 		return NewAnthropic(platformConfig), nil
+	case PlatformGemini:
+		return NewGemini(platformConfig), nil
 	default:
 		return nil, fmt.Errorf("unknown platform %s - %w", platform, ErrUnknownPlatform)
 	}
 }
+

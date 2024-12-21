@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-
 	"github.com/seymahandekli/git-gen/pkg/platforms"
 )
 
