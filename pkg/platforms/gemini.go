@@ -15,7 +15,7 @@ import (
 
 const (
 	geminiApiEndpoint    = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-	geminiDefaultModel   = "gemini-1.5-flash"
+	geminiDefaultModel   = "gemini-1.5-pro"
 	maxScannerBufferSize = 10 * 1024 * 1024 // 10 MB buffer
 )
 

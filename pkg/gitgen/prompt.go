@@ -36,19 +36,37 @@ type Prompt struct {
 }
 
 func (p *Prompt) GetSystemPrompt() string {
+	var instructions string
+
+	// instructions.txt dosyasını kontrol et ve oku
+	instructionsPath := "./instructions.txt"
+	if _, err := os.Stat(instructionsPath); err == nil {
+		// Dosya mevcutsa içeriği oku
+		content, readErr := readFileContent(instructionsPath)
+		if readErr == nil {
+			instructions = content
+		}
+	}
+
+	// ActionType'a göre prompt seç
+	var basePrompt string
 	if p.ActionType == ActionCommitMessage {
-		return PromptForCommit
+		basePrompt = PromptForCommit
+	} else if p.ActionType == ActionCodeReview {
+		basePrompt = PromptForCodeReview
+	} else if p.ActionType == ActionTestScenario {
+		basePrompt = PromptForTestScenario
+	} else {
+		basePrompt = PromptForTest
 	}
 
-	if p.ActionType == ActionCodeReview {
-		return PromptForCodeReview
+	// Eğer instructions.txt içeriği varsa, bunu basePrompt ile birleştir
+	if instructions != "" {
+		return instructions + "\n\n" + basePrompt
 	}
 
-	if p.ActionType == ActionTestScenario {
-		return PromptForTestScenario
-	}
-
-	return PromptForTest
+	// Dosya yoksa sadece basePrompt döndür
+	return basePrompt
 }
 
 func (p *Prompt) GetUserPrompt() string {
