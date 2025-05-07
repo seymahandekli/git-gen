@@ -148,7 +148,7 @@ func main() {
 			},
 			{
 				Name:  "test-scenarios",
-				Usage: "CCreating test scenarios",
+				Usage: "Creating test scenarios",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "apikey",
